@@ -1,0 +1,51 @@
+---
+
+name: Publish Slurm chart
+
+on:
+  # Publish the charts on every tag
+  push:
+    tags:
+      - "*"
+
+jobs:
+  publish_slurm_chart:
+    name: Publish Slurm chart
+    runs-on: ubuntu-latest
+    # Allow the job to push to GitHub packages
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Login to GitHub Container Registry
+        env:
+          REGISTRY: ghcr.io
+          USERNAME: ${{ github.actor }}
+          PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |-
+          helm registry login $REGISTRY \
+            --username "$USERNAME" \
+            --password "$PASSWORD"
+
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          # This is important for the semver action to work correctly
+          # when determining the number of commits since the last tag
+          fetch-depth: 0
+
+      - name: Get SemVer version for current commit
+        id: semver
+        uses: azimuth-cloud/github-actions/semver@master
+
+      - name: Package Slurm chart
+        env:
+          CHART_VERSION: ${{ steps.semver.outputs.version }}
+        run: |-
+          helm package --dependency-update --version $CHART_VERSION ./helm/slurm
+
+      - name: Push Slurm chart to ghcr.io/nscaledev
+        env:
+          CHART_VERSION: ${{ steps.semver.outputs.version }}
+        run: |-
+          helm push slurm-$CHART_VERSION.tgz oci://ghcr.io/nscaledev/charts
