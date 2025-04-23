@@ -136,6 +136,7 @@ spec:
               Weight={{- default 1 $nodeset.nodeWeight }}
           ports:
             - name: slurmd
+              protocol: TCP
               containerPort: {{ include "slurm.compute.port" $ }}
           readinessProbe:
             exec:
