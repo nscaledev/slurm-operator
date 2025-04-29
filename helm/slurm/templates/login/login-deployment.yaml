@@ -4,9 +4,6 @@ SPDX-License-Identifier: Apache-2.0
 */}}
 
 {{- if .Values.login.enabled }}
-{{- if not $.Values.controller.enabled }}
-  {{- fail "Slurm login requires `controller.enabled=true`." -}}
-{{- end }}{{- /* if not $.Values.controller.enabled */}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,16 +25,17 @@ spec:
     spec:
       priorityClassName: {{ .Values.login.priorityClassName | default .Values.priorityClassName }}
       automountServiceAccountToken: false
+      enableServiceLinks: false
       dnsConfig:
         {{- include "slurm.dnsConfig" . | nindent 8 }}
       initContainers:
         - name: init
           image: {{ include "slurm.authcred.imageRef" . }}
           imagePullPolicy: {{ .Values.authcred.imagePullPolicy | default (include "slurm.imagePullPolicy" .) }}
-          {{- if .Values.authcred.resources }}
+          {{- with .Values.authcred.resources }}
           resources:
-            {{- .Values.authcred.resources | toYaml | nindent 12 }}
-          {{- end }}{{- /* if .Values.authcred.resources */}}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}{{- /* with .Values.authcred.resources */}}
           env:
             - name: SLURM_USER
               value: {{ include "slurm.user" . }}
@@ -60,6 +58,9 @@ spec:
           securityContext:
             privileged: false
             allowPrivilegeEscalation: false
+            capabilities:
+              add:
+                - SYS_CHROOT
           env:
             - name: SACKD_OPTIONS
               value: --conf-server={{- printf "%s:%s" (include "slurm.controller.name" .) (include "slurm.controller.port" .) }}
@@ -68,7 +69,7 @@ spec:
               containerPort: 22
           {{- with .Values.login.resources }}
           resources:
-            {{- toYaml .Values.login.resources | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}{{- /* with .Values.login.resources */}}
           volumeMounts:
             {{- include "slurm.volumeMounts" . | nindent 12 }}
@@ -81,10 +82,6 @@ spec:
             - name: ssh-config
               mountPath: /root/.ssh/authorized_keys
               subPath: authorized_keys
-              readOnly: true
-            - name: ssh-config
-              mountPath: /etc/nsswitchConf.conf
-              subPath: nsswitchConf.conf
               readOnly: true
             - name: sssd-config
               mountPath: /etc/sssd/sssd.conf
@@ -102,10 +99,9 @@ spec:
               mountPath: /etc/ssh/ssh_host_rsa_key
               subPath: ssh_host_rsa_key
               readOnly: true
-            {{- range $vol := .Values.login.volumes }}
-            - name: {{ $vol.name }}
-              mountPath: {{ $vol.mountPath | default (printf "/mnt/%s" $vol.name ) }}
-            {{- end }}{{- /* range $vol := $.Values.login.volumes */}}
+            {{- with .Values.login.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}{{- /* range $vol := $.Values.login.extraVolumeMounts */}}
       {{- with .Values.login.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
@@ -119,7 +115,13 @@ spec:
         - name: ssh-config
           configMap:
             name: {{ include "slurm.login.name" . }}-config
-            defaultMode: 0600
+            items:
+              - key: authorized_keys
+                path: authorized_keys
+                mode: 0600
+              - key: sshd_config
+                path: sshd_config
+                mode: 0600
         - name: sssd-config
           secret:
             secretName: {{ include "slurm.login.name" . }}-config
@@ -134,7 +136,9 @@ spec:
             sources:
               - secret:
                   name: {{ include "slurm.auth.secretName" . }}
-        {{- if $.Values.login.volumes }}
-        {{- toYaml $.Values.login.volumes | nindent 8 }}
-        {{- end }}{{- /* if $.Values.login.volumes */}}
+        - name: authsocket
+          emptyDir: {}
+        {{- with .Values.login.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}{{- /* with .Values.login.volumes */}}
 {{- end }}{{- /* if .Values.login.enabled */}}

@@ -23,7 +23,6 @@ Helm Chart for Slurm HPC Workload Manager
 | accounting.image.repository | string | `"ghcr.io/slinkyproject/slurmdbd"` |  Set the image repository to use. |
 | accounting.image.tag | string | `"24.11-ubuntu24.04"` |  Set the image tag to use. |
 | accounting.imagePullPolicy | string | `"IfNotPresent"` |  Set the image pull policy. |
-| accounting.replicas | integer | `1` |  Set the number of replicas to deploy. |
 | accounting.resources | object | `{}` |  Set container resource requests and limits for Kubernetes Pod scheduling. Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container |
 | accounting.tolerations | list | `[]` |  Configure pod tolerations. Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
 | authcred.image.repository | string | `"ghcr.io/slinkyproject/sackd"` |  Set the image repository to use. |
@@ -31,12 +30,14 @@ Helm Chart for Slurm HPC Workload Manager
 | authcred.imagePullPolicy | string | `"IfNotPresent"` |  Set the image pull policy. |
 | authcred.resources | object | `{}` |  Set container resource requests and limits for Kubernetes Pod scheduling. Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container |
 | compute.image.repository | string | `"ghcr.io/slinkyproject/slurmd"` |  Set the image repository to use. |
-| compute.image.tag | string | The Release appVersion. |  Set the image tag to use. |
+| compute.image.tag | string | `"24.11-ubuntu24.04"` |  Set the image tag to use. |
 | compute.imagePullPolicy | string | `"IfNotPresent"` |  Set the image pull policy. |
-| compute.nodesets | list | `[{"affinity":{},"enabled":true,"image":{"repository":"","tag":""},"imagePullPolicy":"IfNotPresent","name":"debug","nodeFeatures":[],"nodeGres":"","nodeSelector":{"kubernetes.io/os":"linux"},"nodeWeight":1,"partition":{"config":{"MaxTime":"UNLIMITED","State":"UP"},"enabled":true},"persistentVolumeClaimRetentionPolicy":{"whenDeleted":"Retain","whenScaled":"Retain"},"priorityClassName":"","replicas":1,"resources":{"limits":{"cpu":1,"memory":"1Gi"}},"tolerations":[],"updateStrategy":{"rollingUpdate":{"maxUnavailable":"20%"},"type":"RollingUpdate"},"volumeClaimTemplates":[],"volumes":[]}]` |  Slurm NodeSets by object list. |
-| compute.nodesets[0] | string | `{"affinity":{},"enabled":true,"image":{"repository":"","tag":""},"imagePullPolicy":"IfNotPresent","name":"debug","nodeFeatures":[],"nodeGres":"","nodeSelector":{"kubernetes.io/os":"linux"},"nodeWeight":1,"partition":{"config":{"MaxTime":"UNLIMITED","State":"UP"},"enabled":true},"persistentVolumeClaimRetentionPolicy":{"whenDeleted":"Retain","whenScaled":"Retain"},"priorityClassName":"","replicas":1,"resources":{"limits":{"cpu":1,"memory":"1Gi"}},"tolerations":[],"updateStrategy":{"rollingUpdate":{"maxUnavailable":"20%"},"type":"RollingUpdate"},"volumeClaimTemplates":[],"volumes":[]}` |  Name of NodeSet. Must be unique. |
+| compute.nodesets | list | `[{"affinity":{},"enabled":true,"extraVolumeMounts":[],"extraVolumes":[],"image":{"repository":"","tag":""},"imagePullPolicy":"IfNotPresent","name":"debug","nodeFeatures":[],"nodeGres":"","nodeSelector":{"kubernetes.io/os":"linux"},"nodeWeight":1,"partition":{"config":{"MaxTime":"UNLIMITED","State":"UP"},"enabled":true},"persistentVolumeClaimRetentionPolicy":{"whenDeleted":"Retain","whenScaled":"Retain"},"priorityClassName":"","replicas":1,"resources":{"limits":{"cpu":1,"memory":"1Gi"}},"tolerations":[],"updateStrategy":{"rollingUpdate":{"maxUnavailable":"20%"},"type":"RollingUpdate"},"volumeClaimTemplates":[]}]` |  Slurm NodeSets by object list. |
+| compute.nodesets[0] | string | `{"affinity":{},"enabled":true,"extraVolumeMounts":[],"extraVolumes":[],"image":{"repository":"","tag":""},"imagePullPolicy":"IfNotPresent","name":"debug","nodeFeatures":[],"nodeGres":"","nodeSelector":{"kubernetes.io/os":"linux"},"nodeWeight":1,"partition":{"config":{"MaxTime":"UNLIMITED","State":"UP"},"enabled":true},"persistentVolumeClaimRetentionPolicy":{"whenDeleted":"Retain","whenScaled":"Retain"},"priorityClassName":"","replicas":1,"resources":{"limits":{"cpu":1,"memory":"1Gi"}},"tolerations":[],"updateStrategy":{"rollingUpdate":{"maxUnavailable":"20%"},"type":"RollingUpdate"},"volumeClaimTemplates":[]}` |  Name of NodeSet. Must be unique. |
 | compute.nodesets[0].affinity | object | `{}` |  Set affinity for Kubernetes Pod scheduling. |
 | compute.nodesets[0].enabled | bool | `true` |  Enables the NodeSet in Slurm. |
+| compute.nodesets[0].extraVolumeMounts | list | `[]` |  List of volume mounts. Ref: https://kubernetes.io/docs/concepts/storage/volumes/ |
+| compute.nodesets[0].extraVolumes | list | `[]` |  Define list of pod volumes. Ref: https://kubernetes.io/docs/concepts/storage/volumes/ |
 | compute.nodesets[0].image.repository | string | `""` |  Set the image repository to use. |
 | compute.nodesets[0].image.tag | string | `""` |  Set the image tag to use. |
 | compute.nodesets[0].imagePullPolicy | string | `"IfNotPresent"` |  Set the image pull policy. |
@@ -59,14 +60,12 @@ Helm Chart for Slurm HPC Workload Manager
 | compute.nodesets[0].updateStrategy.rollingUpdate.maxUnavailable | string | `"20%"` |  The maximum number of pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). Absolute number is calculated from percentage by rounding up. This can not be 0. Defaults to 1. |
 | compute.nodesets[0].updateStrategy.type | string | `"RollingUpdate"` |  Set the update strategy type. Can be either: "RollingUpdate"; "OnDelete". |
 | compute.nodesets[0].volumeClaimTemplates | list | `[]` |  List of PVCs to be created from template and mounted on each NodeSet pod. PVCs are given a unique identity relative to each NodeSet pod. Ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#volume-claim-templates |
-| compute.nodesets[0].volumes | list | `[]` |  List of volumes to be mounted on each NodeSet pod. Ref: https://kubernetes.io/docs/concepts/storage/volumes/ |
 | compute.partitions | list | `[{"config":{"Default":"YES","MaxTime":"UNLIMITED","State":"UP"},"enabled":true,"name":"all","nodesets":["ALL"]}]` |  Slurm Partitions by object list. |
 | compute.partitions[0] | string | `{"config":{"Default":"YES","MaxTime":"UNLIMITED","State":"UP"},"enabled":true,"name":"all","nodesets":["ALL"]}` |  Name of Partition. Must be unique. |
 | compute.partitions[0].config | map[string]string | map[string][]string | `{"Default":"YES","MaxTime":"UNLIMITED","State":"UP"}` |  Extra Slurm partition configuration appended onto the partition line. Ref: https://slurm.schedmd.com/slurm.conf.html#lbAI |
 | compute.partitions[0].enabled | bool | `true` |  Enables the partition in Slurm. |
 | compute.partitions[0].nodesets | list | `["ALL"]` |  NodeSets to put into this Partition by name/key. NOTE: 'ALL' is a Slurm meta value to mean all nodes in the system. |
 | controller.affinity | object | `{}` |  Set affinity for Kubernetes Pod scheduling. Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
-| controller.enabled | bool | `true` |  Enables the controller node. |
 | controller.image.repository | string | `"ghcr.io/slinkyproject/slurmctld"` |  Set the image repository to use. |
 | controller.image.tag | string | `"24.11-ubuntu24.04"` |  Set the image tag to use. |
 | controller.imagePullPolicy | string | `"IfNotPresent"` |  Set the image pull policy. |
@@ -78,9 +77,11 @@ Helm Chart for Slurm HPC Workload Manager
 | controller.persistence.selector | object | `{}` |  Selector to match an existing `PersistentVolume`. |
 | controller.persistence.size | string | `"4Gi"` |  Create a `PersistentVolumeClaim` with this storage size. |
 | controller.persistence.storageClass | string | `"standard"` |  Create a `PersistentVolumeClaim` with this storage class. |
-| controller.priorityClassName | string | `nil` |  Set the priority class to use. Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass |
-| controller.replicas | integer | `1` |  Set the number of replicas to deploy. |
+| controller.priorityClassName | string | `""` |  Set the priority class to use. Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass |
 | controller.resources | object | `{}` |  Set container resource requests and limits for Kubernetes Pod scheduling. Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container |
+| controller.service | object | `{}` |  The controller service configuration. Ref: https://kubernetes.io/docs/concepts/services-networking/service/ |
+| controller.serviceNodePort | integer | `36817` |  The external service node port number. Ignored unless `service.type == NodePort`. |
+| controller.servicePort | integer | `6817` |  The external service port number. |
 | controller.tolerations | list | `[]` |  Configure pod tolerations. Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
 | fullnameOverride | string | `""` |  Overrides the full name of the release. |
 | imagePullPolicy | string | `"IfNotPresent"` |  Set the image pull policy. |
@@ -88,24 +89,24 @@ Helm Chart for Slurm HPC Workload Manager
 | jwt.hs256.existingSecret | string | `""` |  The existing secret to use otherwise one will be generated. |
 | login.affinity | object | `{}` |  Set affinity for Kubernetes Pod scheduling. Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | login.enabled | bool | `true` |  Enables login nodes. |
+| login.extraVolumeMounts | list | `[]` |  List of volume mounts. Ref: https://kubernetes.io/docs/concepts/storage/volumes/ |
+| login.extraVolumes | list | `[]` |  Define list of pod volumes. Ref: https://kubernetes.io/docs/concepts/storage/volumes/ |
 | login.image.repository | string | `"ghcr.io/slinkyproject/login"` |  Set the image repository to use. |
 | login.image.tag | string | `"24.11-ubuntu24.04"` |  Set the image tag to use. |
 | login.imagePullPolicy | string | `"IfNotPresent"` |  Set the image pull policy. |
-| login.nsswitchConf | map | `{"automount":"files sss","ethers":"db files","group":"db files sss","gshadow":"files","hosts":"files dns myhostname","netgroup":"db files sss","networks":"files","passwd":"db files sss","protocols":"db files","rpc":"db files","services":"db files sss","shadow":"db files sss","sudoers":"files sss"}` |  The `/etc/nsswitch.conf` file to use, represented as a map. Ref: https://man7.org/linux/man-pages/man5/nsswitch.conf.5.html |
 | login.priorityClassName | string | `""` |  Set the priority class to use. Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#priorityclass |
 | login.replicas | integer | `1` |  Set the number of replicas to deploy. |
 | login.resources | object | `{}` |  Set container resource requests and limits for Kubernetes Pod scheduling. Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container |
 | login.rootSshAuthorizedKeys | list | `[]` |  The `/root/.ssh/authorized_keys` file to write, represented as a list. |
-| login.service | object | `{"type":"LoadBalancer"}` |  The restapi service configuration. Ref: https://kubernetes.io/docs/concepts/services-networking/service/ |
+| login.service | object | `{"type":"LoadBalancer"}` |  The login service configuration. Ref: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | login.serviceNodePort | integer | `32222` |  The external service node port number. Ignored unless `service.type == NodePort`. |
 | login.servicePort | integer | `2222` |  The external service port number. |
-| login.sshdConfig | map | `{"Include":"/etc/ssh/sshd_config.d/*.conf"}` |  The `/etc/ssh/sshd_config` file to use, represented as a map. Ref: https://man.openbsd.org/sshd_config |
+| login.sshdConfig | map | `{"Include":"/etc/ssh/sshd_config.d/*.conf","Subsystem":"sftp /usr/libexec/openssh/sftp-server","UsePAM":"yes","X11Forwarding":"yes"}` |  The `/etc/ssh/sshd_config` file to use, represented as a map. Ref: https://man.openbsd.org/sshd_config |
 | login.sssdConf.domains | map[map] | `{"DEFAULT":{"auth_provider":"ldap","id_provider":"ldap","ldap_group_search_base":"ou=Groups,dc=example,dc=com","ldap_search_base":"dc=example,dc=com","ldap_uri":"ldap://ldap.example.com","ldap_user_search_base":"ou=Users,dc=example,dc=com"}}` |  The `/etc/sssd/sssd.conf` [domain/$DOMAIN] sections, represented as a map of map. Ref: https://man.archlinux.org/man/sssd.conf.5#DOMAIN_SECTIONS |
 | login.sssdConf.nss | map | `{"filter_groups":"root,slurm","filter_users":"root,slurm"}` |  The `/etc/sssd/sssd.conf` [nss] section, represented as a map. Ref: https://man.archlinux.org/man/sssd.conf.5#NSS_configuration_options |
 | login.sssdConf.pam | map | `{}` |  The `/etc/sssd/sssd.conf` [pam] section, represented as a map. Ref: https://man.archlinux.org/man/sssd.conf.5#PAM_configuration_options |
 | login.sssdConf.sssd | map | `{"config_file_version":2,"domains":"DEFAULT","services":"nss, pam"}` |  The `/etc/sssd/sssd.conf` [sssd] section, represented as a map. Ref: https://man.archlinux.org/man/sssd.conf.5#The_%5Bsssd%5D_section |
 | login.tolerations | list | `[]` |  Configure pod tolerations. Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
-| login.volumes | list | `[]` |  List of volumes to be mounted on each login pod. Ref: https://kubernetes.io/docs/concepts/storage/volumes/ |
 | mariadb.affinity | object | `{}` |  |
 | mariadb.auth.database | string | `"slurm_acct_db"` |  |
 | mariadb.auth.username | string | `"slurm"` |  |
@@ -141,14 +142,13 @@ Helm Chart for Slurm HPC Workload Manager
 | restapi.serviceNodePort | integer | `36820` |  The external service node port number. Ignored unless `service.type == NodePort`. |
 | restapi.servicePort | integer | `6820` |  The external service port number. |
 | restapi.tolerations | list | `[]` |  Configure pod tolerations. Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
-| sharedConfig.volumes | list | `[]` |  List of volumes to be mounted on each Login and NodeSet pods. Ref: https://kubernetes.io/docs/concepts/storage/volumes/ |
 | slurm-exporter.enabled | bool | `true` |  |
 | slurm-exporter.exporter.enabled | bool | `true` |  |
 | slurm-exporter.exporter.secretName | string | `"slurm-token-exporter"` |  |
 | slurm.auth.existingSecret | string | `""` |  The existing secret to use otherwise one will be generated. |
 | slurm.configFiles | map[string]string | `{}` |  Optional raw Slurm configuration files, as a map. The map key represents the config file by name; the map value represents config file contents as a string. Ref: https://slurm.schedmd.com/man_index.html#configuration_files |
 | slurm.epilogScripts | map[string]string | `{}` |  The Epilog scripts for compute nodesets, as a map. The map key represents the filename; the map value represents the script contents. WARNING: The script must include a shebang (!) so it can be executed correctly by Slurm. Ref: https://slurm.schedmd.com/slurm.conf.html#OPT_Epilog Ref: https://slurm.schedmd.com/prolog_epilog.html Ref: https://en.wikipedia.org/wiki/Shebang_(Unix) |
-| slurm.extraSlurmConf | map[string]string | map[string][]string | `{"AuthInfo":["use_client_ids"],"CommunicationParameters":["block_null_hash"],"DebugFlags":[],"EnforcePartLimits":"NO","HashPlugin":"hash/k12","LaunchParameters":["enable_nss_slurm","use_interactive_step","ulimit_pam_adopt"],"LogTimeFormat":["iso8601_ms","format_stderr"],"MaxNodeCount":1024,"PrologFlags":"Contain","ReconfigFlags":["KeepPartInfo","KeepPartState"],"ReturnToService":2,"SchedulerParameters":["defer_batch"],"SchedulerType":"sched/backfill","SelectType":"select/cons_tres","SelectTypeParameters":["CR_Core_Memory"],"SlurmSchedLogLevel":1,"SlurmctldDebug":"info","SlurmctldParameters":["enable_configless","enable_stepmgr"],"SlurmdDebug":"info","SlurmdParameters":["contain_spank"]}` |  Extra slurm configuration lines to append to `slurm.conf`, represetned as a string or a map. WARNING: Values can override existing ones. Ref: https://slurm.schedmd.com/slurm.conf.html |
-| slurm.extraSlurmdbdConf | map[string]string | map[string][]string | `{"ArchiveDir":"/tmp","CommitDelay":1,"CommunicationParameters":[],"DebugFlags":[],"DebugLevel":"info","HashPlugin":"hash/k12","LogTimeFormat":["iso8601_ms","format_stderr"]}` |  Extra slurmdbd configuration lines to append to `slurmdbd.conf`. WARNING: Values can override existing ones. Ref: https://slurm.schedmd.com/slurmdbd.conf.html |
+| slurm.extraSlurmConf | map[string]string | map[string][]string | `{}` |  Extra slurm configuration lines to append to `slurm.conf`, represetned as a string or a map. WARNING: Values can override existing ones. Ref: https://slurm.schedmd.com/slurm.conf.html |
+| slurm.extraSlurmdbdConf | map[string]string | map[string][]string | `{}` |  Extra slurmdbd configuration lines to append to `slurmdbd.conf`. WARNING: Values can override existing ones. Ref: https://slurm.schedmd.com/slurmdbd.conf.html |
 | slurm.prologScripts | map[string]string | `{}` |  The Prolog scripts for compute nodesets, as a map. The map key represents the filename; the map value represents the script contents. WARNING: The script must include a shebang (!) so it can be executed correctly by Slurm. Ref: https://slurm.schedmd.com/slurm.conf.html#OPT_Prolog Ref: https://slurm.schedmd.com/prolog_epilog.html Ref: https://en.wikipedia.org/wiki/Shebang_(Unix) |
 

@@ -192,6 +192,13 @@ Define compute port
 {{- end }}
 
 {{/*
+Define compute spool directory
+*/}}
+{{- define "slurm.compute.spoolDir" -}}
+{{- print "/var/spool/slurmd" -}}
+{{- end }}
+
+{{/*
 Define compute labels
 */}}
 {{- define "slurm.compute.labels" -}}
@@ -205,6 +212,7 @@ Define compute selectorLabels
 */}}
 {{- define "slurm.compute.selectorLabels" -}}
 app.kubernetes.io/name: slurmd
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
@@ -444,8 +452,6 @@ Common volumes
     medium: Memory
 - name: run
   emptyDir: {}
-- name: authsocket
-  emptyDir: {}
 {{- end }}
 
 {{/*
@@ -455,7 +461,7 @@ Common volumeMounts
 - name: etc-slurm
   mountPath: /etc/slurm
 - name: run
-  mountPath: /var/run
+  mountPath: /run
 {{- end }}
 
 {{/*
